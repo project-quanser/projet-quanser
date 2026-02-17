@@ -166,6 +166,9 @@ for pos = 1:nbTests
     pause(2);
 
     if lidarStatus
+        % On enlève les mesures valant 0 (hors de la reach du LiDAR)
+        angles(distances == 0) = [];
+        distances(distances == 0) = []; 
         converted_distance = distances.*pointPerMeter; % On se met à l'échelle de la carte
         [x, y] = pol2cart(angles, converted_distance);
 
@@ -197,3 +200,7 @@ colorbar;
 title("Cartographie après " + nbTests + " scans.");
 
 qlabs.close();
+
+fileName = 'map.mat';
+disp("export de la carte dans " + fileName);
+save(fileName, "map", "pointPerMeter");
