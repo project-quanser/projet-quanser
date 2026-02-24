@@ -2,7 +2,6 @@
 % Lidar
 
 clearvars;
-
 % On commence par setup le quanser de maniere classique
 caseNum = 1; % 1, 2, 3, or 4
 
@@ -119,8 +118,8 @@ end
 % Obstacles
 obstacles = [
     %-1, 0, 1.0;
-    1.0, .5, .80;
-     % 2, -0.1, 0.0 ; 
+    1.0, 1.25, .80;
+    -1.5, -0.1, .2 ; 
      %1.5, 1.5, 0;
      %2.25, 0, 0.5;
 ];
@@ -151,19 +150,19 @@ locPoints = [
     1 -.5 0;
     -1 -1 0; 
     -1 1 0;
-    0 1 0;
-    1 1.5 0;
-    1 -1.5 0;
-    -1 -.5 0;
+    % 0 1 0;
+    % -1 1.5 0;
+    % 1 -1.5 0;
+    % -1 -.5 0;
     ];
 nbTests = length(locPoints); %  nb de teleportaions du robot
-
+tiledlayout(2,nbTests);
 for pos = 1:nbTests
     location = locPoints(pos, :);
  
     hQBot.set_transform(location, rotation, scale , leftLED, rightLED, enableDynamics,waitForConfirmation);
     [lidarStatus, angles, distances] = hQBot.get_lidar();
-    pause(2);
+    pause(0.5);
 
     if lidarStatus
         % On enlève les mesures valant 0 (hors de la reach du LiDAR)
@@ -180,14 +179,15 @@ for pos = 1:nbTests
         index = sub2ind(size(map), round(rows), round(columns));
         map(index) = map(index) + (1 / nbTests);
 
-        % nexttile
-        % polarscatter(angles, converted_distance);
-        % title("LiDAR n°" + pos);
-        % 
-        % nexttile
-        % colorbar;
-        % imagesc(map);
-        % title("Cartographie n°" + pos);
+        nexttile
+        polarscatter(angles, converted_distance);
+        title("LiDAR n°" + pos);
+
+        nexttile
+        colormap jet;
+        imagesc(map);
+        colorbar;
+        title("Cartographie n°" + pos);
     else
         warning('Échec de lecture LIDAR');
     end
@@ -195,12 +195,34 @@ end
 
 % joli mise en forme
 colormap jet;
-imagesc(map');
+imagesc(map);
 colorbar;
 title("Cartographie après " + nbTests + " scans.");
 
-qlabs.close();
-
+% Export de la carte
 fileName = 'map.mat';
 disp("export de la carte dans " + fileName);
+elems(1) = Simulink.BusElement;
+elems(1).Name = "map";
 save(fileName, "map", "pointPerMeter");
+
+
+% figure
+% matchList = zeros(1, length(angles));
+% for rotation = -20:20
+%         converted_distance = distances.*pointPerMeter; % On se met à l'échelle de la carte
+%         [x, y] = pol2cart(angles_copy, converted_distance);
+% 
+%         columns = center_x + x; rows = center_y - y;
+% 
+%         index = sub2ind(size(map), round(rows), round(columns));
+% 
+%         % disp("La rotation de "+rotation+" tours a une correspondance de " + (sum(matching)/length(angles))*100 + "% avec la carte.");
+%         matchList(rotation + 21) = sum(map(index) >= .3);
+%         polarscatter(angles_copy, converted_distance);
+% 
+%         angles_copy = circshift(angles, rotation); % on modifie pas la liste originelle j'ai l'impression ça casse tout sinon
+%         pause(.1)
+% end
+
+qlabs.close();
