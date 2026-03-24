@@ -9,7 +9,7 @@ end
 % SETUP QUANSER QBOT
 caseNum = 3; % 1, 2, 3, or 4
 
-slipmat = true; walls = false;
+slipmat = true; walls = true;
 
 system('quanser_host_peripheral_client.exe -q');
 pause(2)
@@ -105,8 +105,9 @@ waypoints = [
     %2.25, -1, 0;
     %1, -1, deg2rad(-90);
     %-1,    1,    deg2rad(-90);
-    %2.5,    3.5,    -pi;
-    -1,    -1,  -pi        % Arrivée
+    %2.5,    3.5,    -pi; 
+    0,    -1,  -pi;
+    -.5, .5, pi/2;
 ];
 
 % waypoints
@@ -139,13 +140,29 @@ obstacles = [];
 rayon = 1/pointPerMeter;
 for y = 1:length(map(1, :))
     for x = 1:length(map(:,1))
-        if map(x,y) >= .5
+        if map(x,y) >= .3
             coordinateX = (y/pointPerMeter)-(length(map(1, :))/pointPerMeter)/2; % for sure optimizable
             coordinateY = (x/pointPerMeter)-(length(map(1, :))/pointPerMeter)/2;
-            obstaclesObj.spawn([coordinateX, coordinateY, 0], [0,0,0], [rayon, rayon,1], QLabsBasicShape.SHAPE_CYLINDER);
+            % obstaclesObj.spawn([coordinateX, coordinateY, 0], [0,0,0], [rayon, rayon,1], QLabsBasicShape.SHAPE_CYLINDER);
             obstacles = [obstacles; coordinateX, coordinateY, rayon;]; % pour simulink
         end
     end
+end
+
+% Obstacles
+obstaclesObj = QLabsBasicShape(qlabs, verbose);
+
+% Obstacles
+obs = [
+    %-1, 0, 1.0;
+     1.0, 1.25, .80;
+    % -1.5, -0.1, .2 ; 
+    %  1, 0.0, .4;
+    %  0.0, -1, 0.5;
+];
+
+for obs = obs'
+    obstaclesObj.spawn([obs(1), obs(2), 0], [0,0,0], [obs(3),obs(3),1], QLabsBasicShape.SHAPE_CYLINDER);
 end
 
 

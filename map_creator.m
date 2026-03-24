@@ -2,6 +2,7 @@
 % Lidar
 
 clearvars;
+%% Setup QUanser classique
 % On commence par setup le quanser de maniere classique
 caseNum = 1; % 1, 2, 3, or 4
 
@@ -119,9 +120,9 @@ end
 obstacles = [
     %-1, 0, 1.0;
     1.0, 1.25, .80;
-    -1.5, -0.1, .2 ; 
-     %1.5, 1.5, 0;
-     %2.25, 0, 0.5;
+    % -1.5, -0.1, .2 ; 
+    %  1, 0.0, .4;
+    %  0.0, -1, 0.5;
 ];
 
 obstaclesObj = QLabsBasicShape(qlabs, verbose);
@@ -130,11 +131,12 @@ for obs = obstacles'
     obstaclesObj.spawn([obs(1), obs(2), 0], [0,0,0], [obs(3),obs(3),1], QLabsBasicShape.SHAPE_CYLINDER);
 end
 
-pointPerMeter = 10; % précision au dm
+pointPerMeter = 50; % précision a 2cm pres
 mapHeight = 7; mapWidth = 7; % en m (avec une certaine marge
 
 map = zeros(mapHeight*pointPerMeter, mapWidth*pointPerMeter);
 
+%% Cartographie
 % Fuck la commande en boucle fermee je fais en boucle ouverte
 % fuck la boucle ouverte le robot va se TELEPORTER
 location=[0, 0, 0];
@@ -150,13 +152,14 @@ locPoints = [
     1 -.5 0;
     -1 -1 0; 
     -1 1 0;
-    % 0 1 0;
-    % -1 1.5 0;
-    % 1 -1.5 0;
-    % -1 -.5 0;
+    0 1 0;
+    -1 1.5 0;
+    1 -1.5 0;
+    -1 -.5 0;
+    0 0 0;
     ];
 nbTests = length(locPoints); %  nb de teleportaions du robot
-tiledlayout(2,nbTests);
+% tiledlayout(2,nbTests);
 for pos = 1:nbTests
     location = locPoints(pos, :);
  
@@ -176,28 +179,22 @@ for pos = 1:nbTests
 
         columns = center_x + x; rows = center_y - y;
     
-        index = sub2ind(size(map), round(rows), round(columns));
+        index = sub2ind(size(map), ceil(rows), ceil(columns));
         map(index) = map(index) + (1 / nbTests);
 
-        nexttile
-        polarscatter(angles, converted_distance);
-        title("LiDAR n°" + pos);
-
-        nexttile
-        colormap jet;
-        imagesc(map);
-        colorbar;
-        title("Cartographie n°" + pos);
+        % nexttile
+        % polarscatter(angles, converted_distance);
+        % title("LiDAR n°" + pos);
+        % 
+        % nexttile
+        % colormap jet;
+        % imagesc(map);
+        % colorbar;
+        % title("Cartographie n°" + pos);
     else
         warning('Échec de lecture LIDAR');
     end
 end
-
-% joli mise en forme
-colormap jet;
-imagesc(map);
-colorbar;
-title("Cartographie après " + nbTests + " scans.");
 
 % Export de la carte
 fileName = 'map.mat';
@@ -206,23 +203,115 @@ elems(1) = Simulink.BusElement;
 elems(1).Name = "map";
 save(fileName, "map", "pointPerMeter");
 
-
+%% Traitement d'image
+% binarisation de la carte
 % figure
-% matchList = zeros(1, length(angles));
-% for rotation = -20:20
-%         converted_distance = distances.*pointPerMeter; % On se met à l'échelle de la carte
+% tiledlayout(1, 3);
+% 
+% % joli mise en forme
+% nexttile
+% colormap parula;
+% imagesc(map);
+% colorbar;
+% title("Cartographie après " + nbTests + " scans.");
+% 
+% nexttile
+% binaryMap = map;
+% seuil = .3; % si l'obstacle a été scanné 30% du temps
+% binaryMap(map <= seuil) = 0;
+% binaryMap(map > seuil) = 1;
+% 
+% colormap parula;
+% imagesc(binaryMap);
+% colorbar;
+% title("Carte après binarisation")
+% 
+% % dilatation
+% connexite = 2; % on va voir les pixel avec 2 pixels d'ecart
+% dilatedMap = binaryMap;
+% dilatedMap(connexite+1: end-connexite, connexite+1: end-connexite);
+
+
+%% test de l'orientation
+% margin = 25; % deg
+% rotationTest = ceil(linspace(1, 360, 40));
+% errorEvolution = zeros(1, length(rotationTest));
+% 
+% thetaRobot = rotationTest; %awgn(rotationTest, 1.2,'measured');
+% noise = (rand(size(thetaRobot)) * 2 * margin) - margin;
+% thetaRobot = thetaRobot + noise;
+% % for i = 1:length(rotationTest)
+% %     thetaRobot(i) = thetaRobot(i) + randi([rotationTest(i)-nbValuesToTest, rotationTest(i)+nbValuesToTest], 1, 1); % en degré
+% % end
+% 
+% location = [0 0 0];
+% hQBot.set_transform([0 0 0], rotation, scale , leftLED, rightLED, enableDynamics,waitForConfirmation);
+% [lidarStatus, angles, distances] = hQBot.get_lidar();
+% 
+% historiquetheta = ones(1, length(rotationTest));
+% 
+% 
+% figure
+% 
+% % on fait x tests pour voir l'erreur moyenne
+% for test = 1:length(rotationTest)
+%     rotation(3) = deg2rad(rotationTest(test));
+%     hQBot.set_transform([0 0 0], rotation, scale , leftLED, rightLED, enableDynamics,waitForConfirmation);
+%     [lidarStatus, angles, distances] = hQBot.get_lidar();
+%     matchList = zeros(1, length(angles));
+% 
+%     ecartAngles = mean(diff(angles)); % l'écart moyen etre chaques angles (rad)
+% 
+%     angles_copy = angles; %circshift(angles, ceil(deg2rad(thetaRobot(test))/ecartAngles));
+% 
+%     converted_distance = distances.*pointPerMeter; % On se met à l'échelle de la carte
+% 
+%     for rot = 1:length(angles)
 %         [x, y] = pol2cart(angles_copy, converted_distance);
 % 
 %         columns = center_x + x; rows = center_y - y;
+%         index = sub2ind(size(map), ceil(rows), ceil(columns));
+%         matchList(rot) = sum(map(index));
 % 
-%         index = sub2ind(size(map), round(rows), round(columns));
 % 
-%         % disp("La rotation de "+rotation+" tours a une correspondance de " + (sum(matching)/length(angles))*100 + "% avec la carte.");
-%         matchList(rotation + 21) = sum(map(index) >= .3);
-%         polarscatter(angles_copy, converted_distance);
+%         % disp("La rotation de "+rot+" tours a une correspondance de " + matchList(rot) + "avec la carte.");
 % 
-%         angles_copy = circshift(angles, rotation); % on modifie pas la liste originelle j'ai l'impression ça casse tout sinon
-%         pause(.1)
+%         angles_copy = circshift(angles, rot); % on modifie pas la liste originelle j'ai l'impression ça casse tout sinon
+%     end
+% 
+%     % matchList = circshift(matchList, ceil(deg2rad(thetaRobot(test))/ecartAngles)); % on redécale pour prendre en compte l'angle originel (?)
+% 
+%     % plot(matchList)
+% 
+%     % on applique une distribution normale centrée en l'angle perçue par
+%     % l'odometrie
+%     sigma = 45;
+%     x_vector = 1:length(matchList);
+%     coeff = exp(-(x_vector - thetaRobot(test)).^2 / (2 * sigma^2));
+% 
+%     matchList = matchList .* coeff;
+% 
+%     best_theta = find(matchList == max(matchList), 1 );
+%     thetaRad = best_theta * ecartAngles;
+%     thetaDeg = rad2deg(thetaRad);
+% 
+%     % disp("L'erreur de theta est de " + best_theta + " rotations, soit " + thetaRad + "rad, soit " + thetaDeg + "°")
+%     historiquetheta(test) = thetaDeg;
+%     errorEvolution(test) = thetaDeg - rad2deg(rotation(3)); % mesure déduite - mesure réelle
 % end
+% 
+% plot(rotationTest, errorEvolution);
+% 
+% plot(rotationTest, rotationTest);
+% hold on
+% plot(rotationTest, historiquetheta);
+% plot(rotationTest, thetaRobot);
+% 
+% legend \theta_{robot} \theta_{lidar} \theta_{odom}
+% title("Evolution de l'angle calculé à partir du LiDAR comparé à l'angle réel.")
+% xlabel("n° de test") 
+% ylabel('angle (deg)') 
+% grid on
+
 
 qlabs.close();
