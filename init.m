@@ -1,7 +1,15 @@
+% chargement de la carte sauvegardé
+try
+    load('map.mat')
+catch
+    warning('failed to load map.mat');
+end
+
+
 % SETUP QUANSER QBOT
 caseNum = 3; % 1, 2, 3, or 4
 
-slipmat = false;
+slipmat = true; walls = true;
 
 system('quanser_host_peripheral_client.exe -q');
 pause(2)
@@ -60,52 +68,100 @@ if slipmat == true
     hFloor0.spawn_id(8, [-0.6,-0.6,   0], [0,0, pi/2], [1,1,1], 5, false);
 end
 
+
+if walls
+    % Walls
+    hWall = QLabsWalls(qlabs, verbose);
+    hWall.spawn_degrees([2, 1.2, 0.1], [0, 0, 0]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([2, 0, 0.1], [0, 0, 0]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([2, -1.2, 0.1], [0, 0, 0]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([-2, 1.2, 0.1], [0, 0, 0]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([-2, 0, 0.1], [0, 0, 0]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([-2, -1.2, 0.1], [0, 0, 0]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([1.2, 2, 0.1], [0, 0, 90]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([0, 2, 0.1], [0, 0, 90]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([-1.2, 2, 0.1], [0, 0, 90]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([1.2, -2, 0.1], [0, 0, 90]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([0, -2, 0.1], [0, 0, 90]);
+    hWall.set_enable_dynamics(true);
+    hWall.spawn_degrees([-1.2, -2, 0.1], [0, 0, 90]);
+    hWall.set_enable_dynamics(true);
+end
+
 % Définir les Waypoints [x, y, theta]
 waypoints = [
     0,    0,    0;          % Point de départ
     %0.1,  0,    -pi/6
     %2.25, -1, 0;
-    3.5, 0, pi/2;
-    3.5,    2.5,    deg2rad(100);
-    %2.5,    3.5,    pi;
-    0,    0,  0         % Arrivée
-];
-
-% Obstacles Circulaires [x, y, rayon]
-obstacles = [
-     % 2, -0.1, 0.0 ; 
-     1.5, 1.5, 0;
-     2.25, 0, 0.5;
+    %1, -1, deg2rad(-90);
+    %-1,    1,    deg2rad(-90);
+    %2.5,    3.5,    -pi; 
+    0,    -1,  -pi;
+    -.5, .5, pi/2;
 ];
 
 % waypoints
 waypointsObj = QLabsBasicShape(qlabs, verbose);
 
 % startpoint
-[~, startpoint] = waypointsObj.spawn([waypoints(1,1), waypoints(1,2),0], [0,0,waypoints(1,3)], [0.1,0.3,1], QLabsBasicShape.SHAPE_CUBE);
-waypointsObj.actorNumber = startpoint;
-waypointsObj.set_enable_collisions(false);
-waypointsObj.set_material_properties([0.0, 0.0, 0.7]);
+% [~, startpoint] = waypointsObj.spawn([waypoints(1,1), waypoints(1,2),0], [0,0,waypoints(1,3)], [0.1,0.3,1], QLabsBasicShape.SHAPE_CUBE);
+% waypointsObj.actorNumber = startpoint;
+% waypointsObj.set_enable_collisions(false);
+% waypointsObj.set_material_properties([0.0, 0.0, 0.7]);
 
-% waypoints intermediaire
-for w = waypoints(2:end-1, :)' % le ' inverse lignes et colonnes
-    [~, way] = waypointsObj.spawn([w(1),w(2),0], [0,0,w(3)], [0.1,0.3,1], QLabsBasicShape.SHAPE_CUBE);
-    waypointsObj.actorNumber = way;
-    waypointsObj.set_enable_collisions(false);
-    waypointsObj.set_material_properties([0.0, 0.7, 0.7]);
+% % waypoints intermediaire
+% for w = waypoints(2:end-1, :)' % le ' inverse lignes et colonnes
+%     [~, way] = waypointsObj.spawn([w(1),w(2),0], [0,0,w(3)], [0.1,0.3,1], QLabsBasicShape.SHAPE_CUBE);
+%     waypointsObj.actorNumber = way;
+%     waypointsObj.set_enable_collisions(false);
+%     waypointsObj.set_material_properties([0.0, 0.7, 0.7]);
+% end
+% 
+% % Arrivee
+% [~, fin] = waypointsObj.spawn([waypoints(end, 1),waypoints(end, 2),0], [0,0, waypoints(end, 3)], [0.1,0.3,1], QLabsBasicShape.SHAPE_CUBE);
+% waypointsObj.actorNumber = fin;
+% waypointsObj.set_enable_collisions(false);
+% waypointsObj.set_material_properties([0.0, 0.7, 0.0]);
+
+% Obstacles depuis la carte
+obstaclesObj = QLabsBasicShape(qlabs, verbose);
+obstaclesMap = map;
+obstacles = [];
+rayon = 1/pointPerMeter;
+for y = 1:length(map(1, :))
+    for x = 1:length(map(:,1))
+        if map(x,y) >= .3
+            coordinateX = (y/pointPerMeter)-(length(map(1, :))/pointPerMeter)/2; % for sure optimizable
+            coordinateY = (x/pointPerMeter)-(length(map(1, :))/pointPerMeter)/2;
+            % obstaclesObj.spawn([coordinateX, coordinateY, 0], [0,0,0], [rayon, rayon,1], QLabsBasicShape.SHAPE_CYLINDER);
+            obstacles = [obstacles; coordinateX, coordinateY, rayon;]; % pour simulink
+        end
+    end
 end
-
-% Arrivee
-[~, fin] = waypointsObj.spawn([waypoints(end, 1),waypoints(end, 2),0], [0,0, waypoints(end, 3)], [0.1,0.3,1], QLabsBasicShape.SHAPE_CUBE);
-waypointsObj.actorNumber = fin;
-waypointsObj.set_enable_collisions(false);
-waypointsObj.set_material_properties([0.0, 0.7, 0.0]);
-
 
 % Obstacles
 obstaclesObj = QLabsBasicShape(qlabs, verbose);
 
-for obs = obstacles'
+% Obstacles
+obs = [
+    %-1, 0, 1.0;
+     1.0, 1.25, .80;
+    % -1.5, -0.1, .2 ; 
+    %  1, 0.0, .4;
+    %  0.0, -1, 0.5;
+];
+
+for obs = obs'
     obstaclesObj.spawn([obs(1), obs(2), 0], [0,0,0], [obs(3),obs(3),1], QLabsBasicShape.SHAPE_CYLINDER);
 end
 
@@ -127,6 +183,13 @@ system(['quarc_run -D -r -t tcpip://localhost:17000 ', file_workspace]);
 pause(1)
 system(['quarc_run -D -r -t tcpip://localhost:17000 ', file_driver, ' -uri tcpip://localhost:17098']);
 pause(3)
+
+% Camera
+cam = QLabsFreeCamera(qlabs, verbose);
+cam.spawn([0.0, 0, 4.0], [0, 90, 90.0], [1 1 1]);
+cam.set_camera_properties(90, true, 2.3, 10.0);
+cam.set_transform_degrees([0.0, 0, 4.0], [-0, 90.0, 90.0]); % valeurs trouvées manuellement
+status = cam.possess();
 
 % VARIABLES UTILISE DANS SIMULINK
 %parametre de la simulation
