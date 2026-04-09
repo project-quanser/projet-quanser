@@ -159,7 +159,8 @@ locPoints = [
     0 0 0;
     ];
 nbTests = length(locPoints); %  nb de teleportaions du robot
-% tiledlayout(2,nbTests);
+lidarOffset = 9.5*0.0254; % le lidar est 9,5 pouces (~2,54cm) devant le CDG 
+
 for pos = 1:nbTests
     location = locPoints(pos, :);
  
@@ -174,7 +175,9 @@ for pos = 1:nbTests
         converted_distance = distances.*pointPerMeter; % On se met à l'échelle de la carte
         [x, y] = pol2cart(angles, converted_distance);
 
-        offset_x = location(1)* pointPerMeter; offset_y =  location(2)* pointPerMeter; % prise en compte de la position du robot
+        lidar_x = location(1) + lidarOffset; % prise en compte de l'offset (vu que j'ai pas d'angle que le x change)
+
+        offset_x = lidar_x* pointPerMeter; offset_y =  location(2)* pointPerMeter; % prise en compte de la position du robot
         center_x = ceil((mapHeight*pointPerMeter /2) + offset_x); center_y = ceil((mapWidth*pointPerMeter / 2) + offset_y);
 
         columns = center_x + x; rows = center_y - y;
@@ -210,10 +213,10 @@ save(fileName, "map", "pointPerMeter");
 % 
 % % joli mise en forme
 % nexttile
-% colormap parula;
-% imagesc(map);
-% colorbar;
-% title("Cartographie après " + nbTests + " scans.");
+colormap parula;
+imagesc(map);
+colorbar;
+title("Cartographie après " + nbTests + " scans.");
 % 
 % nexttile
 % binaryMap = map;
