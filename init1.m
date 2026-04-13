@@ -106,6 +106,13 @@ waypoints = [
     -1, 0, pi/2;
     0, .75, -pi/4;
     1, 0, -pi/2;
+   % 
+   %    0,    0,    0;
+   %  1,    0,   -pi/4;
+   %  0,   -1,   -pi;
+   % -1,    0,    pi/2;
+   %  0,   0.75, -pi/4;
+   %  1,    0,   -pi/2;
 
 ];
 
@@ -234,11 +241,15 @@ nlobj.MV(2).Max =  2.0; % omega max
 
 % Poids par défaut (tes matrices Q, R, S) 
 % Poids sur l'erreur de suivi (x, y, theta) - matrice Q
-nlobj.Weights.OutputVariables = [10, 10, 0.1]; 
+%nlobj.Weights.OutputVariables = [10, 10, 2]; 
+%nlobj.Weights.OutputVariables = [10, 10, 5];
+nlobj.Weights.OutputVariables = [10, 10, 0.1]; %bof mais good 
 
 % Poids sur l'effort de commande (v, omega) - matrice R
 nlobj.Weights.ManipulatedVariables = [0.1, 0.1]; 
 
 % Poids sur la variation de commande (delta u) - matrice S
-nlobj.Weights.ManipulatedVariablesRate = [1, 8];
+%nlobj.Weights.ManipulatedVariablesRate = [0.5, 3]; % à tester
+%nlobj.Weights.ManipulatedVariablesRate = [1, 1]; % à tester
+nlobj.Weights.ManipulatedVariablesRate = [1, 8]; %good
 % nlobj.Weights.ManipulatedVariablesRate = [5, 20]; pas fou 
