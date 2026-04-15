@@ -234,7 +234,7 @@ nlobj.Model.StateFcn = "qbot_kinematics";
 nlobj.Model.IsContinuousTime = true; % Le solveur discretisera lui-même
 
 % Contraintes sur les commandes 
-nlobj.MV(1).Min = -0.5; % v min
+nlobj.MV(1).Min = -0.2; % v min
 nlobj.MV(1).Max =  0.5; % v max
 nlobj.MV(2).Min = -2.0; % omega min
 nlobj.MV(2).Max =  2.0; % omega max
@@ -253,3 +253,5 @@ nlobj.Weights.ManipulatedVariables = [0.1, 0.1];
 %nlobj.Weights.ManipulatedVariablesRate = [1, 1]; % à tester
 nlobj.Weights.ManipulatedVariablesRate = [1, 8]; %good
 % nlobj.Weights.ManipulatedVariablesRate = [5, 20]; pas fou 
+
+Ts_mpc = 0.1;
