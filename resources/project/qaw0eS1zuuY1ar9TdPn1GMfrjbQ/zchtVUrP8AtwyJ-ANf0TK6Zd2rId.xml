@@ -4,6 +4,10 @@
         <Label UUID="641affe7-8b20-41a5-a026-36fd2645cffa"/>
     </Category>
     <Category UUID="e9f9bb9b-8e96-4248-be2b-bb91c044f1a7">
+        <Label UUID="505e2acf-e90b-443f-a781-e697de2e9010"/>
+        <Label UUID="687ff1f2-2291-4afc-b072-1962349a4c19"/>
         <Label UUID="79e87b09-6d04-40f8-aa7d-5a640f0f9122"/>
+        <Label UUID="dbfa8528-ece3-4293-bb1c-cfe4f1df5d61"/>
+        <Label UUID="e5b86ec8-eed0-4931-a3e3-9a7ba1d12735"/>
     </Category>
 </Info>
