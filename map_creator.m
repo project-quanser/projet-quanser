@@ -6,6 +6,12 @@ clearvars;
 % On commence par setup le quanser de maniere classique
 caseNum = 1; % 1, 2, 3, or 4
 
+slipmat = true; walls = true;
+
+% on décale le mobilier de 1.5 partout (se souvenir que le robot reste la
+% coordonnée (0,0,0))
+buildOffsetX = 1.5; buildOffsetY = 1.5; 
+
 system('quanser_host_peripheral_client.exe -q');
 pause(2)
 system('quanser_host_peripheral_client.exe  -uri tcpip://localhost:18444 &');
@@ -46,47 +52,53 @@ disp('Connected')
 verbose = true;
 num_destroyed = qlabs.destroy_all_spawned_actors();
 
-% Flooring
-hFloor0 = QLabsQBotPlatformFlooring(qlabs);
+% Tapis
+if slipmat == true
+    hFloor0 = QLabsQBotPlatformFlooring(qlabs);
     % center
-    hFloor0.spawn_id(0, [-0.6, 0.6,   0], [0,0,-pi/2], [1,1,1], 5, false); 
+    hFloor0.spawn_id(0, [-0.6 + buildOffsetX, 0.6 + buildOffsetY,   0], [0,0,-pi/2], [1,1,1], 5, false); 
     % corners
-    hFloor0.spawn_id(1, [ 0.6, 1.8,   0], [0,0,-pi/2], [1,1,1], 0, false);
-    hFloor0.spawn_id(2, [ 1.8,-0.6,   0], [0,0, pi  ], [1,1,1], 0, false);
-    hFloor0.spawn_id(3, [-0.6,-1.8,   0], [0,0, pi/2], [1,1,1], 0, false);
-    hFloor0.spawn_id(4, [-1.8, 0.6,   0], [0,0,    0], [1,1,1], 0, false);
+    hFloor0.spawn_id(1, [ 0.6+ buildOffsetX, 1.8+ buildOffsetY,   0], [0,0,-pi/2], [1,1,1], 0, false);
+    hFloor0.spawn_id(2, [ 1.8+ buildOffsetX,-0.6+ buildOffsetY,   0], [0,0, pi  ], [1,1,1], 0, false);
+    hFloor0.spawn_id(3, [-0.6+ buildOffsetX,-1.8+ buildOffsetY,   0], [0,0, pi/2], [1,1,1], 0, false);
+    hFloor0.spawn_id(4, [-1.8+ buildOffsetX, 0.6+ buildOffsetY,   0], [0,0,    0], [1,1,1], 0, false);
     % sides
-    hFloor0.spawn_id(5, [-0.6, 0.6,   0], [0,0,    0], [1,1,1], 5, false);
-    hFloor0.spawn_id(6, [ 0.6, 0.6,   0], [0,0,-pi/2], [1,1,1], 5, false);
-    hFloor0.spawn_id(7, [ 0.6,-0.6,   0], [0,0, pi  ], [1,1,1], 5, false);
-    hFloor0.spawn_id(8, [-0.6,-0.6,   0], [0,0, pi/2], [1,1,1], 5, false);
+    hFloor0.spawn_id(5, [-0.6+ buildOffsetX, 0.6+ buildOffsetY,   0], [0,0,    0], [1,1,1], 5, false);
+    hFloor0.spawn_id(6, [ 0.6+ buildOffsetX, 0.6+ buildOffsetY,   0], [0,0,-pi/2], [1,1,1], 5, false);
+    hFloor0.spawn_id(7, [ 0.6+ buildOffsetX,-0.6+ buildOffsetY,   0], [0,0, pi  ], [1,1,1], 5, false);
+    hFloor0.spawn_id(8, [-0.6+ buildOffsetX,-0.6+ buildOffsetY,   0], [0,0, pi/2], [1,1,1], 5, false);
+end
 
-% Walls
-hWall = QLabsWalls(qlabs, verbose);
-    hWall.spawn_degrees([2, 1.2, 0.1], [0, 0, 0]);
+
+if walls
+    % Walls
+    hWall = QLabsWalls(qlabs, verbose);
+    hWall.spawn_degrees([2+ buildOffsetX, 1.2+ buildOffsetY, 0.1], [0, 0, 0]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([2, 0, 0.1], [0, 0, 0]);
+    hWall.spawn_degrees([2+ buildOffsetX, 0+ buildOffsetY, 0.1], [0, 0, 0]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([2, -1.2, 0.1], [0, 0, 0]);
+    hWall.spawn_degrees([2+ buildOffsetX, -1.2+ buildOffsetY, 0.1], [0, 0, 0]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([-2, 1.2, 0.1], [0, 0, 0]);
+    hWall.spawn_degrees([-2+ buildOffsetX, 1.2+ buildOffsetY, 0.1], [0, 0, 0]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([-2, 0, 0.1], [0, 0, 0]);
+    hWall.spawn_degrees([-2+ buildOffsetX, 0+ buildOffsetY, 0.1], [0, 0, 0]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([-2, -1.2, 0.1], [0, 0, 0]);
+    hWall.spawn_degrees([-2+ buildOffsetX, -1.2+ buildOffsetY, 0.1], [0, 0, 0]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([1.2, 2, 0.1], [0, 0, 90]);
+    hWall.spawn_degrees([1.2+ buildOffsetX, 2+ buildOffsetY, 0.1], [0, 0, 90]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([0, 2, 0.1], [0, 0, 90]);
+    hWall.spawn_degrees([0+ buildOffsetX, 2+ buildOffsetY, 0.1], [0, 0, 90]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([-1.2, 2, 0.1], [0, 0, 90]);
+    hWall.spawn_degrees([-1.2+ buildOffsetX, 2+ buildOffsetY, 0.1], [0, 0, 90]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([1.2, -2, 0.1], [0, 0, 90]);
+    hWall.spawn_degrees([1.2+ buildOffsetX, -2+ buildOffsetY, 0.1], [0, 0, 90]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([0, -2, 0.1], [0, 0, 90]);
+    hWall.spawn_degrees([0+ buildOffsetX, -2+ buildOffsetY, 0.1], [0, 0, 90]);
     hWall.set_enable_dynamics(true);
-    hWall.spawn_degrees([-1.2, -2, 0.1], [0, 0, 90]);
+    hWall.spawn_degrees([-1.2+ buildOffsetX, -2+ buildOffsetY, 0.1], [0, 0, 90]);
     hWall.set_enable_dynamics(true);
+end
+
 
 % QBot
 hQBot = QLabsQBotPlatform(qlabs, verbose);
@@ -118,12 +130,15 @@ end
 
 % Obstacles
 obstacles = [
+    60, 60, 0.1;
     %-1, 0, 1.0;
-    1.0, 1.25, .80;
+    %1.0, 1.25, .80;
     % -1.5, -0.1, .2 ; 
     %  1, 0.0, .4;
     %  0.0, -1, 0.5;
 ];
+obstacles(:, 1)= obstacles(:, 1) + buildOffsetX;
+obstacles(:, 2)= obstacles(:, 2) + buildOffsetY; 
 
 obstaclesObj = QLabsBasicShape(qlabs, verbose);
 
@@ -132,7 +147,7 @@ for obs = obstacles'
 end
 
 pointPerMeter = 50; % précision a 2cm pres
-mapHeight = 7; mapWidth = 7; % en m (avec une certaine marge
+mapHeight = 10; mapWidth = 10; % en m (avec une certaine marge
 
 map = zeros(mapHeight*pointPerMeter, mapWidth*pointPerMeter);
 
@@ -149,14 +164,13 @@ waitForConfirmation=true;
 
 locPoints = [
     0 0 0;
-    1 -.5 0;
-    -1 -1 0; 
-    -1 1 0;
-    0 1 0;
-    -1 1.5 0;
-    1 -1.5 0;
-    -1 -.5 0;
-    0 0 0;
+    1.5 1.5 0;
+    3 3 0; 
+    0 1.5 0;
+    1.5 0 0;
+    0 3 0;
+    3 0 0;
+    1.5 3 0;
     ];
 nbTests = length(locPoints); %  nb de teleportaions du robot
 lidarOffset = 9.5*0.0254; % le lidar est 9,5 pouces (~2,54cm) devant le CDG 
