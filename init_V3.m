@@ -162,7 +162,7 @@ obstaclesObj = QLabsBasicShape(qlabs, verbose);
 % Obstacles
 obs = [
     %-1, 0, 1.0;
-     0, 0, .5;
+     60, 0, .5;
     % -1.5, -0.1, .2 ; 
     %  1, 0.0, .4;
     %  0.0, -1, 0.5;
@@ -197,7 +197,7 @@ pause(3)
 cam = QLabsFreeCamera(qlabs, verbose);
 cam.spawn([0.0, 0, 4.0], [0, 90, 90.0], [1 1 1]);
 cam.set_camera_properties(90, true, 2.3, 10.0);
-cam.set_transform_degrees([0.0, 0, 4.0], [-0, 90.0, 90.0]); % valeurs trouvées manuellement
+cam.set_transform_degrees([1.397, 1.19, 4.108], [-0, 90.0, 90.0]); % valeurs trouvées manuellement
 status = cam.possess();
 
 %% VARIABLES UTILISE DANS SIMULINK
