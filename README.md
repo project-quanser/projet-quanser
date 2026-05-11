@@ -69,8 +69,8 @@ sur un projet de cette envergure.
 Nous adressons également nos remerciements à **l'École d'Ingénieurs JUNIA 
 HEI Lille** pour nous avoir offert un cadre de travail particulièrement propice au 
 développement de ce projet. L'accès au laboratoire de robotique, la mise à 
-disposition du matériel nécessaire — notamment la plateforme \textit{Quanser QBot} 
-et les licences \textit{MATLAB/Simulink} — ainsi que la qualité des conditions de 
+disposition du matériel nécessaire — notamment la plateforme **Quanser QBot**
+et les licences **MATLAB/Simulink** — ainsi que la qualité des conditions de 
 travail ont grandement facilité notre progression tout au long de l'année.
 
 Enfin, nous remercions chaleureusement nos camarades de promotion pour les 
