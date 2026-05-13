@@ -1,8 +1,6 @@
 <p align="center"> <img width="828" height="320" alt="banner" src="https://github.com/user-attachments/assets/62e103a6-bf82-4af4-ba88-900132581d23" /> </p>
 
 # Captures d'écrans
-<img width="500"  alt="Capture d&#39;écran 2026-04-02 230840" src="https://github.com/user-attachments/assets/55e6d8c6-5a29-491c-b8de-518d95cbacdf" />
-<img width="500" height="383" alt="Nouvelle traj Camera bleu" src="https://github.com/user-attachments/assets/4d3ccc75-c43a-4d74-8eef-5084099ac763" />
 <img width="500" alt="Capture d&#39;écran 2026-03-29 192223" src="https://github.com/user-attachments/assets/a2b1b432-d5e2-4233-bec9-f663a43c7b26" />
 <img width="500" height="293.103" alt="Capture d&#39;écran 2026-05-13 165151" src="https://github.com/user-attachments/assets/09da3f7e-e400-449e-a29e-916eac7aeb4f" />
 
@@ -79,3 +77,7 @@ travail ont grandement facilité notre progression tout au long de l'année.
 Enfin, nous remercions chaleureusement nos camarades de promotion pour les 
 échanges constructifs et le soutien mutuel dont nous avons bénéficié au fil de 
 ces travaux.
+
+# Captures d'écrans
+<img width="500"  alt="Capture d&#39;écran 2026-04-02 230840" src="https://github.com/user-attachments/assets/55e6d8c6-5a29-491c-b8de-518d95cbacdf" />
+<img width="500" height="383" alt="Nouvelle traj Camera bleu" src="https://github.com/user-attachments/assets/4d3ccc75-c43a-4d74-8eef-5084099ac763" />
